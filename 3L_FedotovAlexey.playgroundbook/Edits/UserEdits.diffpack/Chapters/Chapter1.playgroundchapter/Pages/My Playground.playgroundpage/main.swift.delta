@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Diff</key>
+	<array>
+		<dict>
+			<key>ModifiedContent</key>
+			<string>/*
+ Задание
+1. Описать несколько структур – любой легковой автомобиль SportCar и любой грузовик TrunkCar.
+2. Структуры должны содержать марку авто, год выпуска, объем багажника/кузова, запущен ли двигатель, открыты ли окна, заполненный объем багажника.
+3. Описать перечисление с возможными действиями с автомобилем: запустить/заглушить двигатель, открыть/закрыть окна, погрузить/выгрузить из кузова/багажника груз определенного объема.
+4. Добавить в структуры метод с одним аргументом типа перечисления, который будет менять свойства структуры в зависимости от действия.
+5. Инициализировать несколько экземпляров структур. Применить к ним различные действия.
+6. Вывести значения свойств экземпляров в консоль. 
+ */
+
+enum ModelsCar : String {
+    case Lada
+    case Cadillac
+    case Chevrolet
+    case Jeep
+    case MAN
+    case Mercedes
+}
+
+enum ActionCar {
+    case turnOnEngine(Bool)
+    case openWindows(Bool)
+    case addCargoVolume(volume: Double, isAdd : Bool)
+}
+
+struct Car {
+    private let model: ModelsCar
+    private let releaseYear: Int
+    private let volumeTrunk: Double
+    
+    private var isEngineRunning : Bool = false
+    private var areWindowsOpen : Bool = false
+    private var volumeOccupiedPartTrunk : Double = 0
+    
+    init(model: ModelsCar, releaseYear: Int, volumeTrunk: Double) {
+        self.model = model
+        //1886 &lt;- created first car
+        if releaseYear &lt; 1886 {
+            self.releaseYear = 1886
+            print("invalid value for releaseYear = \(releaseYear)")
+        }
+        else {
+            self.releaseYear = releaseYear
+        }
+        if volumeTrunk &lt; 0.0 {
+            self.volumeTrunk = 0.0
+            print("invalid value for volumeTrunk = \(volumeTrunk)")
+        }
+        else {
+            self.volumeTrunk = volumeTrunk
+        }
+    }
+    
+    mutating func PerformAction(action : ActionCar) {
+        switch action {
+        case .turnOnEngine(let act):
+            if act {
+                isEngineRunning = true
+            }
+            else {
+                isEngineRunning = false
+            }
+        case .openWindows(let act):
+            if act {
+                areWindowsOpen = true
+            }
+            else {
+                areWindowsOpen = false
+            }
+        case .addCargoVolume(let volume, let act):
+            if volume &lt; 0 {
+                print("Invalid value for volumeOccupiedPartTrunk = \(volume). The value must be positive!")
+            }
+            else if act {
+                // погрузка
+                volumeOccupiedPartTrunk += volume
+                if volumeOccupiedPartTrunk &gt; volumeTrunk {
+                    print("Not enough space to load: \(volumeOccupiedPartTrunk - volumeTrunk)")
+                    volumeOccupiedPartTrunk = volumeTrunk
+                }
+            }
+            else {
+                //выгрузка
+                volumeOccupiedPartTrunk -= volume
+                if volumeOccupiedPartTrunk &lt; 0 {
+                    print("Unable to unload volume = \(abs(volumeOccupiedPartTrunk)).")
+                    volumeOccupiedPartTrunk = 0
+                }
+            }
+        }
+    }
+    
+    func PrintInfo() {
+        print("*************")
+        print("model = \(model.rawValue)")
+        print("release year = \(releaseYear)")
+        print("volume trunk = \(volumeTrunk)")
+        print("is engine running = \(isEngineRunning)")
+        print("are windows open = \(areWindowsOpen)")
+        print("volume occupied part trunk = \(volumeOccupiedPartTrunk)")
+        print("*************")
+    }
+}
+
+var car : Car = Car(model: ModelsCar.Jeep, releaseYear: 2004, volumeTrunk: 100)
+car.PrintInfo()
+car.PerformAction(action: .turnOnEngine(true))
+car.PrintInfo()
+car.PerformAction(action: .turnOnEngine(false))
+car.PrintInfo()
+
+var trunk : Car = Car(model: ModelsCar.MAN, releaseYear: 2010, volumeTrunk: 10000)
+trunk.PrintInfo()
+//избыточная загрузка
+trunk.PerformAction(action: .addCargoVolume(volume: 11000, isAdd: true))
+trunk.PrintInfo()
+//избыточная выгрузка
+trunk.PerformAction(action: .addCargoVolume(volume: 11000, isAdd: false))
+trunk.PrintInfo()
+//отрицательное значение объема
+trunk.PerformAction(action: .addCargoVolume(volume: -11000, isAdd: false))
+trunk.PrintInfo()
+
+trunk.PerformAction(action: .addCargoVolume(volume: 1000, isAdd: true))
+trunk.PrintInfo()
+trunk.PerformAction(action: .addCargoVolume(volume: 100, isAdd: false))
+trunk.PrintInfo()
+
+
+</string>
+			<key>ModifiedRange</key>
+			<string>{0, 4410}</string>
+			<key>OriginalContent</key>
+			<string></string>
+			<key>OriginalRange</key>
+			<string>{0, 0}</string>
+		</dict>
+	</array>
+	<key>File</key>
+	<string>Chapters/Chapter1.playgroundchapter/Pages/My Playground.playgroundpage/main.swift</string>
+</dict>
+</plist>
