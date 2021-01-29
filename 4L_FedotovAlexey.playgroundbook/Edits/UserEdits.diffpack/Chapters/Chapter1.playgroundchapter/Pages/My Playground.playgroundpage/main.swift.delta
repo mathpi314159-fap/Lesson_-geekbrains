@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Diff</key>
+	<array>
+		<dict>
+			<key>ModifiedContent</key>
+			<string>enum Models : String {
+    case Lada
+    case Cadillac
+    case Chevrolet
+    case Jeep
+    case MAN
+    case Mercedes
+}
+
+enum ActionCar {
+    case turnOnEngine(Bool)
+    case openWindows(Bool)
+    case addCargoVolume(volume: Double, isAdd : Bool)
+    case upload //only truck (automatic upload cargo)
+    case enableSportMode(Bool) //only sport car
+}
+
+enum CarClassificationByType : String {
+    case class1  = "Motorcycles"
+    case class2  = "Passenger Cars"
+    case class3  = "Pickups, Panels, Vans"
+    case class4  = "Buses"
+    case class5  = "Single Unit 2-Axle Trucks"
+    case class6  = "Single Unit 3-Axle Trucks"
+    case class7  = "Single Unit 4 or More-Axle Trucks"
+    case class8  = "Single Trailer 3- or 4-Axle Trucks"
+    case class9  = "Single Trailer 5-Axle Trucks"
+    case class10 = "Single Trailer 6 or More-Axle Trucks"
+    case class11 = "Multi Trailer 5 or Less-Axle Trucks"
+    case class12 = "Multi Trailer 6-Axle Trucks"
+    case class13 = "Multi Trailer 7 or More-Axle Trucks"
+}
+
+enum TruckClassificationByWeight : String {
+    case class1 = "Light truck (0–2,722 kg)"
+    case class2a = "Light truck (2,722–3,856 kg)"
+    case class2b = "Light/Medium truck (3,856–4,536 kg)"
+    case class3 = "Medium truck (4,536–6,350 kg)"
+    case class4 = "Medium truck (6,351–7,257 kg)"
+    case class5 = "Medium truck (7,258–8,845 kg)"
+    case class6 = "Medium truck (8,846–11,793 kg)"
+    case class7 = "Heavy truck (11,794–14,969 kg)"
+    case class8 = "Heavy truck (14,969 kg)"
+}
+
+enum SportCarClassification {
+    case USA
+    case EUR
+}
+
+class Car {
+    private let model: Models // модель
+    private let releaseYear: Int // год выпуска
+    private let volumeTrunk: Double // общий объем багажника
+    private let type: CarClassificationByType // тип машины
+    private var isEngineRunning : Bool // запущен ли двигатель
+    private var areWindowsOpen : Bool // откоыты ли окна
+    private var volumeOccupiedPartTrunk : Double // занятый объем багажника
+    
+    init(carType type: CarClassificationByType, model: Models, releaseYear: Int, volumeTrunk: Double) {
+        self.type = type
+        self.model = model
+        
+        switch releaseYear {
+        case ...1886:
+            self.releaseYear = 1886
+            print("invalid value for releaseYear = \(releaseYear)")
+        case 2021...:
+            self.releaseYear = 2021
+            print("invalid value for releaseYear = \(releaseYear)")
+        default:
+            self.releaseYear = releaseYear
+        }
+        
+        if volumeTrunk &lt; 0.0 {
+            self.volumeTrunk = 0.0
+            print("invalid value for volumeTrunk = \(volumeTrunk)")
+        }
+        else {
+            self.volumeTrunk = volumeTrunk
+        }
+        
+        self.volumeOccupiedPartTrunk = 0
+        self.isEngineRunning = false
+        self.areWindowsOpen = false
+    }
+    
+    func SetVolumeOccupiedPartTrunk(_ value: Double)
+    {
+        self.volumeOccupiedPartTrunk = value
+    }
+    
+    func PrintInfo() {
+        print("\nИнформация об автомобиле:")
+        print("Модель = \(model.rawValue)")
+        print("Тип = \(type.rawValue)")
+        print("Год выпуска = \(releaseYear)")
+        print("Запущен ли двигатель = \(isEngineRunning)")
+        print("Опущены ли стекла = \(areWindowsOpen)")
+        print("Объем кузова = \(volumeTrunk)")
+        print("Заполненный объем кузова = \(volumeOccupiedPartTrunk)")
+    }
+    
+    func PerformAction(action : ActionCar) {
+        switch action {
+        case .turnOnEngine(let act):
+            self.isEngineRunning = act
+        case .openWindows(let act):
+            areWindowsOpen = act
+        case .addCargoVolume(let volume, let act):
+            if volume &lt; 0 {
+                print("Invalid value for volumeOccupiedPartTrunk = \(volume). The value must be positive!")
+            }
+            else if act {
+                // погрузка
+                volumeOccupiedPartTrunk += volume
+                if volumeOccupiedPartTrunk &gt; volumeTrunk {
+                    print("Not enough space to load: \(volumeOccupiedPartTrunk - volumeTrunk)")
+                    volumeOccupiedPartTrunk = volumeTrunk
+                }
+            }
+            else {
+                //выгрузка
+                volumeOccupiedPartTrunk -= volume
+                if volumeOccupiedPartTrunk &lt; 0 {
+                    print("Unable to unload volume = \(abs(volumeOccupiedPartTrunk)).")
+                    volumeOccupiedPartTrunk = 0
+                }
+            }
+        default:
+            print("Данные действия не являются возможными для объекта.")
+        }
+    }
+}
+
+class TrunkCar : Car {
+    let typeTruck : TruckClassificationByWeight
+    
+    init (carType type: CarClassificationByType, model: Models, releaseYear: Int, volumeTrunk: Double, typeTruck : TruckClassificationByWeight) {
+        self.typeTruck = typeTruck
+        super.init(carType: type, model: model, releaseYear: releaseYear, volumeTrunk: volumeTrunk)
+    }
+    
+    override func PrintInfo() {
+        super.PrintInfo()
+        print("Тип грузовика = \(self.typeTruck.rawValue)")
+    }
+    
+    override func PerformAction(action : ActionCar) {
+        switch action {
+        case .upload:
+            SetVolumeOccupiedPartTrunk(0)
+        default:
+            super.PerformAction(action: action)
+        }
+    }
+}
+
+class SportСar : Car {
+    let typeSportCar : SportCarClassification
+    var sportMode : Bool
+    
+    init (carType type: CarClassificationByType, model: Models, releaseYear: Int, volumeTrunk: Double, typeSportCar : SportCarClassification) {
+        self.typeSportCar = typeSportCar
+        self.sportMode = false
+        super.init(carType: type, model: model, releaseYear: releaseYear, volumeTrunk: volumeTrunk)
+    }
+    
+    override func PrintInfo() {
+        super.PrintInfo()
+        print("Тип спортивного автомобиля = \(self.typeSportCar)")
+        print("Включен ли спортивный режим = \(self.sportMode)")
+    }
+    
+    override func PerformAction(action : ActionCar) {
+        switch action {
+        case .enableSportMode(let action):
+            self.sportMode = action
+        default:
+            super.PerformAction(action: action)
+        }
+    }
+}
+
+var car : Car = Car(carType: CarClassificationByType.class5, model: Models.MAN, releaseYear: 2010, volumeTrunk: 100000)
+car.PrintInfo()
+
+var truck1 : TrunkCar = TrunkCar(carType: CarClassificationByType.class5, model: Models.MAN, releaseYear: 2010, volumeTrunk: 100000, typeTruck: TruckClassificationByWeight.class6)
+truck1.PrintInfo()
+truck1.PerformAction(action: ActionCar.addCargoVolume(volume: 100, isAdd: true))
+truck1.PrintInfo()
+truck1.PerformAction(action: ActionCar.upload)
+truck1.PrintInfo()
+
+var truck2 : TrunkCar = TrunkCar(carType: CarClassificationByType.class6, model: Models.Lada, releaseYear: 1990, volumeTrunk: 10000, typeTruck: TruckClassificationByWeight.class3)
+truck2.PrintInfo()
+
+var sportCar1 : SportСar = SportСar(carType: CarClassificationByType.class2, model: Models.MAN, releaseYear: 2010, volumeTrunk: 100000, typeSportCar: SportCarClassification.USA)
+sportCar1.PrintInfo()
+
+sportCar1.PerformAction(action: ActionCar.enableSportMode(true))
+sportCar1.PrintInfo()
+
+var sportCar2 : SportСar = SportСar(carType: CarClassificationByType.class2, model: Models.Jeep, releaseYear: 2012, volumeTrunk: 100, typeSportCar: SportCarClassification.EUR)
+sportCar2.PrintInfo()
+</string>
+			<key>ModifiedRange</key>
+			<string>{1, 7381}</string>
+			<key>OriginalContent</key>
+			<string></string>
+			<key>OriginalRange</key>
+			<string>{1, 0}</string>
+		</dict>
+	</array>
+	<key>File</key>
+	<string>Chapters/Chapter1.playgroundchapter/Pages/My Playground.playgroundpage/main.swift</string>
+</dict>
+</plist>
