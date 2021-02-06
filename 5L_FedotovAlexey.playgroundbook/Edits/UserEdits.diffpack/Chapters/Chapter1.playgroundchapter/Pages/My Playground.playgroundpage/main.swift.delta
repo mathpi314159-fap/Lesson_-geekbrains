@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Diff</key>
+	<array>
+		<dict>
+			<key>ModifiedContent</key>
+			<string>enum Models : String {
+    case Lada
+    case Cadillac
+    case Chevrolet
+    case Jeep
+    case MAN
+    case Mercedes
+}
+
+enum CarClassificationByType : String {
+    case class1  = "Motorcycles"
+    case class2  = "Passenger Cars"
+    case class3  = "Pickups, Panels, Vans"
+    case class4  = "Buses"
+    case class5  = "Single Unit 2-Axle Trucks"
+    case class6  = "Single Unit 3-Axle Trucks"
+    case class7  = "Single Unit 4 or More-Axle Trucks"
+    case class8  = "Single Trailer 3- or 4-Axle Trucks"
+    case class9  = "Single Trailer 5-Axle Trucks"
+    case class10 = "Single Trailer 6 or More-Axle Trucks"
+    case class11 = "Multi Trailer 5 or Less-Axle Trucks"
+    case class12 = "Multi Trailer 6-Axle Trucks"
+    case class13 = "Multi Trailer 7 or More-Axle Trucks"
+}
+
+enum TruckClassificationByWeight : String {
+    case class1 = "Light truck (0–2,722 kg)"
+    case class2a = "Light truck (2,722–3,856 kg)"
+    case class2b = "Light/Medium truck (3,856–4,536 kg)"
+    case class3 = "Medium truck (4,536–6,350 kg)"
+    case class4 = "Medium truck (6,351–7,257 kg)"
+    case class5 = "Medium truck (7,258–8,845 kg)"
+    case class6 = "Medium truck (8,846–11,793 kg)"
+    case class7 = "Heavy truck (11,794–14,969 kg)"
+    case class8 = "Heavy truck (14,969 kg)"
+}
+
+enum SportCarClassification {
+    case USA
+    case EUR
+}
+
+protocol ReleaseYear {
+    var releaseYear: Int { get } // год выпуска
+}
+extension ReleaseYear {
+    func CheckReleaseYear(releaseYear: Int) -&gt; Int {
+        switch releaseYear {
+        case ...1886:
+            print("invalid value for releaseYear = \(releaseYear)")
+            return 1886
+        case 2021...:
+            print("invalid value for releaseYear = \(releaseYear)")
+            return 2021
+        default:
+            return releaseYear
+        }
+    }
+}
+
+protocol Trunk { // багажник
+    var volumeTrunk: Double { get} // общий объем багажника
+    var volumeOccupiedPartTrunk : Double { set get } // занятый объем багажника
+}
+extension Trunk {
+    func CheckVolume(volume: Double) -&gt; Double {
+        if volume &lt; 0.0 {
+            print("invalid value for volumeTrunk = \(volume)")
+            return 0
+        }
+        return volume
+    }
+    mutating func LoadTrunk(volume: Double) {
+        if volume &lt; 0 {
+            print("Invalid value for volumeOccupiedPartTrunk = \(volume). The value must be positive!")
+        }
+        else {
+            volumeOccupiedPartTrunk += volume
+            if volumeOccupiedPartTrunk &gt; volumeTrunk {
+                print("Not enough space to load: \(volumeOccupiedPartTrunk - volumeTrunk)")
+                volumeOccupiedPartTrunk = volumeTrunk
+            }
+        }
+    }
+    mutating func UnloadTrunk(volume: Double) {
+        if volume &lt; 0 {
+            print("Invalid value for volumeOccupiedPartTrunk = \(volume). The value must be positive!")
+        }
+        else {
+            volumeOccupiedPartTrunk -= volume
+            if volumeOccupiedPartTrunk &lt; 0 {
+                print("Unable to unload volume = \(abs(volumeOccupiedPartTrunk)).")
+                volumeOccupiedPartTrunk = 0
+            }
+        }
+    }
+}
+
+protocol Windows {
+    var areWindowsOpen : Bool { set get } // откоыты ли окна
+}
+extension Windows {
+    mutating func OpenWindows() {
+        areWindowsOpen = true
+    }
+    mutating func CloseWindows() {
+        areWindowsOpen = false
+    }
+}
+
+protocol Engine {
+    var isEngineRunning : Bool { set get } // запущен ли двигатель
+}
+extension Engine {
+    mutating func StartEngine() {
+        isEngineRunning = true
+    }
+    mutating func FinishEngine() {
+        isEngineRunning = false
+    }
+}
+
+protocol Car : Trunk, Windows, Engine, ReleaseYear {
+    var model: Models { get } // модель
+    var type: CarClassificationByType { get } // тип машины
+}
+
+extension Car {
+    func PrintInfo() {
+        print("\nИнформация об автомобиле:")
+        print("Модель = \(model.rawValue)")
+        print("Тип = \(type.rawValue)")
+        print("Год выпуска = \(releaseYear)")
+        print("Запущен ли двигатель = \(isEngineRunning)")
+        print("Опущены ли стекла = \(areWindowsOpen)")
+        print("Объем кузова = \(volumeTrunk)")
+        print("Заполненный объем кузова = \(volumeOccupiedPartTrunk)")
+    }
+}
+
+class TrunkCar : Car {
+    let typeTruck : TruckClassificationByWeight
+    var model: Models
+    var releaseYear: Int
+    var volumeTrunk: Double
+    var type: CarClassificationByType
+    var isEngineRunning : Bool
+    var areWindowsOpen : Bool
+    var volumeOccupiedPartTrunk : Double 
+    
+    static var countTrunkCar : Int = 0
+    
+    init (carType type: CarClassificationByType, model: Models, releaseYear: Int, volumeTrunk: Double, typeTruck : TruckClassificationByWeight) {
+        self.typeTruck = typeTruck
+        self.type = type
+        self.model = model
+        self.releaseYear = releaseYear
+        self.volumeTrunk = 0
+        self.isEngineRunning = false
+        self.areWindowsOpen = false
+        self.volumeOccupiedPartTrunk = 0.0
+        
+        TrunkCar.countTrunkCar += 1
+        
+        self.releaseYear = CheckReleaseYear(releaseYear: releaseYear)
+        self.volumeTrunk = CheckVolume(volume: volumeTrunk)
+    }
+    
+    deinit {
+        TrunkCar.countTrunkCar -= 1
+    }
+    
+    func ExtraPrintInfo() {
+        PrintInfo()
+        print("Тип грузовика = \(self.typeTruck.rawValue)")
+    }
+}
+extension TrunkCar : CustomStringConvertible {
+    var description: String {
+        return "This is Trunk car :)"
+    }
+}
+
+class SportСar : Car {
+    let typeSportCar : SportCarClassification
+    var sportMode : Bool
+    var model: Models
+    var releaseYear: Int
+    var volumeTrunk: Double
+    var type: CarClassificationByType
+    var isEngineRunning : Bool
+    var areWindowsOpen : Bool
+    var volumeOccupiedPartTrunk : Double 
+    
+    static var countSportCar : Int = 0
+    
+    init (carType type: CarClassificationByType, model: Models, releaseYear: Int, volumeTrunk: Double, typeSportCar : SportCarClassification) {
+        self.typeSportCar = typeSportCar
+        self.sportMode = false
+        self.type = type
+        self.model = model
+        self.releaseYear = 0
+        self.volumeTrunk = 0
+        self.isEngineRunning = false
+        self.areWindowsOpen = false
+        self.volumeOccupiedPartTrunk = 0.0
+        SportСar.countSportCar += 1
+        
+        self.releaseYear = CheckReleaseYear(releaseYear: releaseYear)
+        self.volumeTrunk = CheckVolume(volume: volumeTrunk)
+    }
+    
+    deinit {
+        SportСar.countSportCar -= 1
+    }
+    
+    func ExtraPrintInfo() {
+        PrintInfo()
+        print("Тип спортивного автомобиля = \(self.typeSportCar)")
+        print("Включен ли спортивный режим = \(self.sportMode)")
+    }
+}
+extension SportСar : CustomStringConvertible {
+    var description: String {
+        return "This is Sport car :)"
+    }
+}
+
+var truck1 : TrunkCar = TrunkCar(carType: CarClassificationByType.class5, model: Models.MAN, releaseYear: 2010, volumeTrunk: 100000, typeTruck: TruckClassificationByWeight.class6)
+truck1.ExtraPrintInfo()
+truck1.OpenWindows()
+truck1.ExtraPrintInfo()
+truck1.LoadTrunk(volume: 1000)
+truck1.ExtraPrintInfo()
+print(truck1)
+
+var sportCar1 : SportСar = SportСar(carType: CarClassificationByType.class2, model: Models.MAN, releaseYear: 2010, volumeTrunk: 100000, typeSportCar: SportCarClassification.USA)
+sportCar1.sportMode = true
+sportCar1.ExtraPrintInfo()
+print(sportCar1)
+
+print(SportСar.countSportCar)
+
+</string>
+			<key>ModifiedRange</key>
+			<string>{1, 7441}</string>
+			<key>OriginalContent</key>
+			<string></string>
+			<key>OriginalRange</key>
+			<string>{1, 0}</string>
+		</dict>
+	</array>
+	<key>File</key>
+	<string>Chapters/Chapter1.playgroundchapter/Pages/My Playground.playgroundpage/main.swift</string>
+</dict>
+</plist>
