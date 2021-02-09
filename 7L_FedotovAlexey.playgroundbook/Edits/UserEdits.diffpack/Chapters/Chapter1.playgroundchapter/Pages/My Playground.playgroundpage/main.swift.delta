@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Diff</key>
+	<array>
+		<dict>
+			<key>ModifiedContent</key>
+			<string>/*
+ 1. Придумать класс, методы которого могут завершаться неудачей и возвращать либо значение, либо ошибку Error?. Реализовать их вызов и обработать результат метода при помощи конструкции if let, или guard let.
+ 
+ 2. Придумать класс, методы которого могут выбрасывать ошибки. Реализуйте несколько throws-функций. Вызовите их и обработайте результат вызова при помощи конструкции try/catch.
+ */
+//task 1
+enum CalculatorError : Error {
+    case DivZero
+}
+
+class Calculator&lt;T:FloatingPoint&gt; {
+    func Add(_ num1 : T, _ num2 : T) -&gt; T {
+        return num1 + num2
+    }
+    func Sub(_ num1 : T, _ num2 : T) -&gt; T {
+        return num1 - num2
+    }
+    func Mult(_ num1 : T, _ num2 : T) -&gt; T {
+        return num1 * num2
+    }
+    func Div(_ num1 : T, _ num2 : T) -&gt; (value: T?, error: Error?) {
+        guard num2 != 0 else { return (nil, CalculatorError.DivZero) }
+        var result = num1 / num2
+        print("Результат деления \(num1) на \(num2) равен \(result)")
+        return (result, nil)
+    }
+}
+
+var calculator: Calculator = Calculator&lt;Float&gt;()
+var result1 = calculator.Div(12, 3)
+if let error = result1.error { 
+    print(result1.error) 
+}
+var result2 = calculator.Div(12, 0)
+if let error = result2.error { 
+    print(result2.error!) 
+}
+
+//task 2
+enum MobileBankError : String, Error {
+    case notCreditCards = "В мобильном банке нет кредитных карточек"
+    case transferNegativeCash = "Перевод негативного кэша невозможен"
+    case lackFunds = "Нехватка денежных средств."
+    case failedCard = "Такой кредитной карты нет в вашем мобильном банке."
+}
+
+class CreditCard : Hashable {
+    var cash : Float
+    var name : String
+    init(name: String, cash: Float = 0) {
+        self.name = name
+        self.cash = cash
+    }
+    
+    static func == (lhs: CreditCard, rhs: CreditCard) -&gt; Bool {
+        return lhs.name == rhs.name
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
+    
+    func PrintInfo() {
+        print("На карточке \(name) содержится \(cash) рублей")
+    }
+}
+
+class MobileBank {
+    private var crediteCards : Set&lt;CreditCard&gt;
+    init(crediteCards: Set&lt;CreditCard&gt; = []) {
+        self.crediteCards = crediteCards
+    }
+    func addCrediteCard(_ card : CreditCard) {
+        crediteCards.insert(card)
+    }
+    func getTotalCash() throws -&gt; Float {
+        guard crediteCards.count &gt; 0 else { throw MobileBankError.notCreditCards }
+        var total : Float = 0
+        for card in crediteCards {
+            total += card.cash
+        }
+        return total
+    }
+    func transferBetweenCards(cardWith : CreditCard, cardTo: CreditCard, cash: Float) throws {
+        crediteCards.contains(cardTo)
+        guard crediteCards.contains(cardTo) else { throw MobileBankError.failedCard }
+        guard crediteCards.contains(cardWith) else { throw MobileBankError.failedCard }
+        guard cash &gt; 0 else { throw MobileBankError.transferNegativeCash }
+        guard cardWith.cash &gt;= cash else { throw MobileBankError.lackFunds }
+        cardTo.cash += cash
+        cardWith.cash -= cash
+    }
+    func PrintInfo() {
+        print("*Информация по кредитным картам*")
+        for card in crediteCards {
+            card.PrintInfo()
+        }
+    }
+}
+
+var myMobileBank = MobileBank()
+do {
+    try myMobileBank.getTotalCash()
+}
+catch let error as MobileBankError {
+    print(error.rawValue)
+}
+catch {
+    print("Не учнетнные ошибки в банке")
+}    
+
+var creditCard1 = CreditCard(name: "visa", cash: 20)
+var creditCard2 = CreditCard(name: "master", cash: 30)
+myMobileBank.addCrediteCard(creditCard1)
+myMobileBank.addCrediteCard(creditCard2)
+do {
+    var total = try myMobileBank.getTotalCash()
+    print("Всего средств = ", total)
+    try myMobileBank.transferBetweenCards(cardWith: creditCard1, cardTo: creditCard2, cash: 10)
+    try myMobileBank.transferBetweenCards(cardWith: creditCard1, cardTo: creditCard2, cash: 100)
+}
+catch let error as MobileBankError {
+    print(error.rawValue)
+}
+catch {
+    print("Не учнетнные ошибки в банке")
+}
+var creditCard3 = CreditCard(name: "mir", cash: 30)
+//myMobileBank.addCrediteCard(creditCard3)
+do {
+    try myMobileBank.transferBetweenCards(cardWith: creditCard3, cardTo: creditCard3, cash: 100)
+}
+catch let error as MobileBankError {
+    print(error.rawValue)
+}
+catch {
+    print("Не учнетнные ошибки в банке")
+}  
+myMobileBank.PrintInfo()
+</string>
+			<key>ModifiedRange</key>
+			<string>{0, 4340}</string>
+			<key>OriginalContent</key>
+			<string>
+</string>
+			<key>OriginalRange</key>
+			<string>{0, 1}</string>
+		</dict>
+	</array>
+	<key>File</key>
+	<string>Chapters/Chapter1.playgroundchapter/Pages/My Playground.playgroundpage/main.swift</string>
+</dict>
+</plist>
