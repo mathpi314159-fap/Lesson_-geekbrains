@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Diff</key>
+	<array>
+		<dict>
+			<key>ModifiedContent</key>
+			<string>struct Queue&lt;T: Numeric&gt; {
+    var elements: [T] = []
+    mutating func push(_ element: T){
+        elements.append(element)
+    }
+    mutating func pop() -&gt; T? {
+        guard elements.count &gt; 0 else {return nil}
+        return elements.removeFirst()
+    }
+    subscript(index: Int) -&gt; T? {
+        if index &lt; 0 || index &gt;= self.elements.count {
+            return nil
+        } 
+        return self.elements[index]
+    }
+    func Filter(predicate: ((T) -&gt; Bool)) -&gt; [T] {
+        var tmp : [T] = [T]()
+        for element in self.elements {
+            if predicate(element) {
+                tmp.append(element)
+            }
+        }
+        return tmp
+    }
+    func Filter(predicate: ((T, T) -&gt; (T,T))) -&gt; [T] {
+        var tempArray: [T] = [T]()
+        tempArray = self.elements
+        let n : Int = tempArray.count
+        for i in 0..&lt;(n-1) {
+            for j in (i + 1)..&lt;n {
+                (tempArray[i], tempArray[j]) = predicate(tempArray[i], tempArray[j])
+            }
+        }
+        return tempArray
+    }
+}
+
+//task1
+var queue = Queue&lt;Int&gt;()
+queue.push(11)
+queue.push(12)
+queue.push(13)
+print(queue)
+queue.pop()
+print(queue)
+
+//task3
+print(queue[-1])
+print(queue[0])
+print(queue[1])
+print(queue[2])
+print(queue[3])
+
+//task2
+queue.push(23)
+queue.push(22)
+queue.push(21)
+queue.push(16)
+queue.push(17)
+queue.push(18)
+
+let closure1: (Int) -&gt; Bool = { $0 % 2 == 0}
+var array1: [Int] = queue.Filter(predicate: closure1)
+print(array1)
+
+// простая сортировка
+let closure2: (Int, Int) -&gt; (Int, Int) = { ($1 &lt; $0 ) ? ($1, $0) : ($0, $1) }
+var array2: [Int] = queue.Filter(predicate: closure2)
+print("До сортировки: \(queue.elements)")
+print("После сортировки: \(array2)")
+</string>
+			<key>ModifiedRange</key>
+			<string>{0, 1686}</string>
+			<key>OriginalContent</key>
+			<string>
+</string>
+			<key>OriginalRange</key>
+			<string>{0, 1}</string>
+		</dict>
+	</array>
+	<key>File</key>
+	<string>Chapters/Chapter1.playgroundchapter/Pages/My Playground.playgroundpage/main.swift</string>
+</dict>
+</plist>
